@@ -29,6 +29,33 @@ struct ArchiveExtraDataRecord {
     extra_field_data: Vec<u8>,
 }
 
+enum AttributeCompatibility {
+    // MS-DOS and OS/2 (FAT / VFAT / FAT32 file systems)
+    MSDOS = 0,
+    Amiga = 1,
+    OpenVMS = 2,
+    Unix = 3,
+    VM_CMS = 4,
+    Atari_ST = 5,
+    OS2_HPFS = 6,
+    Macintosh = 7,
+    Z_System = 8,
+    CPM = 9,
+    Windows_NTFS = 10,
+    MVS = 11,
+    VSE = 12,
+    Acorn_Risc = 13,
+    VFAT = 14,
+    Alternate_MVS = 15,
+    BeOS = 16,
+    Tandem = 17,
+    OS400 = 18,
+    OSX_Darwin = 19,
+
+    // Technically all values 20-255, but we'll map them all here
+    Unknown = 255,
+}
+
 struct CentralDirectory {
     headers: Vec<CentralDirectoryHeader>,
     signaure: CentralDirectorySignature,
@@ -124,31 +151,15 @@ struct LocalFileHeader {
     extra_field: Vec<u8>,
 }
 
-enum VersionMadeBy {
-    // MS-DOS and OS/2 (FAT / VFAT / FAT32 file systems)
-    MSDOS = 0,
-    Amiga = 1,
-    OpenVMS = 2,
-    Unix = 3,
-    VM_CMS = 4,
-    Atari_ST = 5,
-    OS2_HPFS = 6,
-    Macintosh = 7,
-    Z_System = 8,
-    CPM = 9,
-    Windows_NTFS = 10,
-    MVS = 11,
-    VSE = 12,
-    Acorn_Risc = 13,
-    VFAT = 14,
-    Alternate_MVS = 15,
-    BeOS = 16,
-    Tandem = 17,
-    OS400 = 18,
-    OSX_Darwin = 19,
+struct VersionMadeBy {
+    attribute_compatibility: AttributeCompatibility,
+    zip_specification_version: ZipSpecificationVersion,
+}
 
-    // Technically all values 20-255, but we'll map them all here
-    Unknown = 255,
+// From the u16 version: major = value / 10, minor = value % 10
+struct ZipSpecificationVersion {
+    major: u8,
+    minor: u8,
 }
 
 struct Zip64EndOfCentralDirectoryLocator {
