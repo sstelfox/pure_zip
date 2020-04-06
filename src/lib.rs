@@ -1,15 +1,15 @@
 //! A pure rust implementation for reading ZIP archives.
 
-#![warn(missing_docs)]
+// #![warn(missing_docs)]
 
-const ARCHIVE_EXTRA_DATA_SIGNATURE: u32 = 0x08064b50;
+pub const ARCHIVE_EXTRA_DATA_SIGNATURE: u32 = 0x08064b50;
 
 // This is commonly adopted as the signature value for the data descriptor record, but this is
 // optional and zip files may be encountered with or without this signature marking data
 // descriptors.
-const DATA_DESCRIPTOR_SIGNATURE: u32 = 0x08074b50;
+pub const DATA_DESCRIPTOR_SIGNATURE: u32 = 0x08074b50;
 
-const LOCAL_FILE_HEADER_SIGNATURE: u32 = 0x04034b50;
+pub const LOCAL_FILE_HEADER_SIGNATURE: u32 = 0x04034b50;
 
 // * All values must be stored in little-endian byte order, specifically in low-byte:high-byte,
 //   low-word:high-word order.
@@ -21,85 +21,101 @@ const LOCAL_FILE_HEADER_SIGNATURE: u32 = 0x04034b50;
 //   reside on the same disk when splitting or spanning an archive
 
 // This has the exact same format as the EncryptionHeader
-struct ArchiveDecryptionHeader;
+pub struct ArchiveDecryptionHeader;
 
 // This is always prefixed with the ARCHIVE_EXTRA_DATA_SIGNATURE
-struct ArchiveExtraDataRecord {
-    extra_field_length: u32,
-    extra_field_data: Vec<u8>,
+pub struct ArchiveExtraDataRecord {
+    pub extra_field_length: u32,
+    pub extra_field_data: Vec<u8>,
 }
 
-enum AttributeCompatibility {
+pub enum Features {
+    AESEncryption,
+    CorrectedRC2Encryption,
+}
+
+impl Features {
+    pub fn minimum_supported_version(&self) -> u16 {
+        use self::Features::*;
+
+        match *self {
+            AESEncryption => 51,
+            CorrectedRC2Encryption => 51,
+        }
+    }
+}
+
+pub enum AttributeCompatibility {
     // MS-DOS and OS/2 (FAT / VFAT / FAT32 file systems)
     MSDOS = 0,
     Amiga = 1,
     OpenVMS = 2,
     Unix = 3,
-    VM_CMS = 4,
-    Atari_ST = 5,
-    OS2_HPFS = 6,
+    VMCMS = 4,
+    AtariST = 5,
+    OS2HPFS = 6,
     Macintosh = 7,
-    Z_System = 8,
+    ZSystem = 8,
     CPM = 9,
-    Windows_NTFS = 10,
+    WindowsNTFS = 10,
     MVS = 11,
     VSE = 12,
-    Acorn_Risc = 13,
+    AcornRisc = 13,
     VFAT = 14,
-    Alternate_MVS = 15,
+    AlternateMVS = 15,
     BeOS = 16,
     Tandem = 17,
     OS400 = 18,
-    OSX_Darwin = 19,
+    OSXDarwin = 19,
 
     // Technically all values 20-255, but we'll map them all here
     Unknown = 255,
 }
 
-struct CentralDirectory {
-    headers: Vec<CentralDirectoryHeader>,
-    signaure: CentralDirectorySignature,
+pub struct CentralDirectory {
+    pub headers: Vec<CentralDirectoryHeader>,
+    pub signaure: CentralDirectorySignature,
 }
 
-struct CentralDirectorySignature {
+pub struct CentralDirectorySignature {
     // Should be 0x05054b50
-    signature: u32,
-    size_of_data: u16,
+    pub signature: u32,
+    pub size_of_data: u16,
 
-    signature_data: Vec<u8>,
+    pub signature_data: Vec<u8>,
 }
 
-struct CentralDirectoryHeader {
+pub struct CentralDirectoryHeader {
     // Always set to 0x02014b50
-    central_file_header_signature: u32,
+    pub central_file_header_signature: u32,
 
-    version_made_by: VersionMadeBy,
-    version_needed_to_extract: u16,
+    pub version_made_by: VersionMadeBy,
+    pub version_needed_to_extract: u16,
 
-    general_purpose_bit_flag: u16,
-    compression_method: u16,
+    pub general_purpose_bit_flag: u16,
+    pub compression_method: u16,
 
-    last_mod_file_time: u16,
-    last_mod_file_date: u16,
+    pub last_mod_file_time: u16,
+    pub last_mod_file_date: u16,
 
-    crc32: u32,
+    pub crc32: u32,
 
-    compressed_size: u32,
-    uncompressed_size: u32,
+    pub compressed_size: u32,
+    pub uncompressed_size: u32,
 
-    file_name_length: u16,
-    extra_field_length: u16,
-    file_comment_length: u16,
+    pub file_name_length: u16,
+    pub extra_field_length: u16,
+    pub file_comment_length: u16,
 
-    disk_number_start: u16,
+    pub disk_number_start: u16,
 
-    internal_file_attributes: u16,
-    external_file_attributes: u32,
-    relative_offset_of_local_header: u32,
+    pub internal_file_attributes: u16,
+    pub external_file_attributes: u32,
+    pub relative_offset_of_local_header: u32,
 
-    file_name: Vec<u8>,
-    extra_field: Vec<u8>,
-    file_comment: Vec<u8>,
+    pub file_name: Vec<u8>,
+    pub extra_field: Vec<u8>,
+    pub file_comment: Vec<u8>,
 }
 
 // This must exist if bit 3 of the general_purpose_bit_flag in the associated LocalFileHeader is
@@ -110,92 +126,92 @@ struct CentralDirectoryHeader {
 //
 // I couldn't tell, but when reading this it seems like it may be immediately preceded by the
 // signature value mentioned.
-struct DataDescriptor {
-    crc32: u32,
-    compressed_size: u32,
-    uncompressed_size: u32,
+pub struct DataDescriptor {
+    pub crc32: u32,
+    pub compressed_size: u32,
+    pub uncompressed_size: u32,
 }
 
-struct EncryptionHeader;
+pub struct EncryptionHeader;
 
-struct EndOfCentralDirectoryRecord {
+pub struct EndOfCentralDirectoryRecord {
     // Always set to 0x06054b50
-    signature: u32,
+    pub signature: u32,
 
-    number_of_this_disk: u16,
-    number_of_the_disk_with_the_start_of_the_central_directory: u16,
-    total_number_of_entries_in_the_central_directory_on_this_disk: u16,
-    total_number_of_entries_in_the_central_directory: u16,
+    pub number_of_this_disk: u16,
+    pub number_of_the_disk_with_the_start_of_the_central_directory: u16,
+    pub total_number_of_entries_in_the_central_directory_on_this_disk: u16,
+    pub total_number_of_entries_in_the_central_directory: u16,
 
-    size_of_the_central_directory: u32,
-    offset_of_start_of_central_directory_with_respect_to_the_starting_disk_number: u32,
-    zip_file_comment_length: u16,
-    zip_file_comment: Vec<u8>,
+    pub size_of_the_central_directory: u32,
+    pub offset_of_start_of_central_directory_with_respect_to_the_starting_disk_number: u32,
+    pub zip_file_comment_length: u16,
+    pub zip_file_comment: Vec<u8>,
 }
 
-struct FileData;
+pub struct FileData;
 
-struct LocalFileHeader {
-    extraction_version: u16,
-    general_purpose_bit_flag: u16,
-    compression_method: u16,
-    mod_file_time: u16,
-    mod_file_date: u16,
-    crc32: u32,
-    compressed_size: u32,
-    uncompressed_size: u32,
-    file_name_length: u16,
-    extra_field_length: u16,
+pub struct LocalFileHeader {
+    pub extraction_version: u16,
+    pub general_purpose_bit_flag: u16,
+    pub compression_method: u16,
+    pub mod_file_time: u16,
+    pub mod_file_date: u16,
+    pub crc32: u32,
+    pub compressed_size: u32,
+    pub uncompressed_size: u32,
+    pub file_name_length: u16,
+    pub extra_field_length: u16,
 
-    file_name: Vec<u8>,
-    extra_field: Vec<u8>,
+    pub file_name: Vec<u8>,
+    pub extra_field: Vec<u8>,
 }
 
-struct VersionMadeBy {
-    attribute_compatibility: AttributeCompatibility,
-    zip_specification_version: ZipSpecificationVersion,
+pub struct VersionMadeBy {
+    pub attribute_compatibility: AttributeCompatibility,
+    pub zip_specification_version: ZipSpecificationVersion,
 }
 
 // From the u16 version: major = value / 10, minor = value % 10
-struct ZipSpecificationVersion {
-    major: u8,
-    minor: u8,
+pub struct ZipSpecificationVersion {
+    pub major: u8,
+    pub minor: u8,
 }
 
-struct Zip64EndOfCentralDirectoryLocator {
+pub struct Zip64EndOfCentralDirectoryLocator {
     // Always set to 0x07064b50
-    signature: u32,
+    pub signature: u32,
 
-    number_of_the_disk_with_the_start_of_the_zip64_end_of_central_directory: u32,
-    relative_offset_of_the_zip64_end_of_central_directory_record: u64,
-    total_number_of_disks: u32,
+    pub number_of_the_disk_with_the_start_of_the_zip64_end_of_central_directory: u32,
+    pub relative_offset_of_the_zip64_end_of_central_directory_record: u64,
+    pub total_number_of_disks: u32,
 }
 
-struct Zip64EndOfCentralDirectoryRecord {
+pub struct Zip64EndOfCentralDirectoryRecord {
     // Always set to 0x06064b50
-    signature: u32,
+    pub signature: u32,
 
     // Should be the size of this struct without the signature or this field
-    size_of_end_of_central_directory_record: u64,
+    pub size_of_end_of_central_directory_record: u64,
 
-    version_made_by: VersionMadeBy,
-    version_needed_to_extract: u16,
+    pub version_made_by: VersionMadeBy,
+    pub version_needed_to_extract: u16,
 
-    number_of_this_disk: u32,
-    number_of_the_disk_with_the_start_of_the_central_directory: u32,
-    total_number_of_entries_in_the_central_directory_on_this_disk: u64,
-    total_number_of_entries_in_the_central_directory: u64,
-    size_of_the_central_directory: u64,
-    offset_of_start_of_central_directory_with_respect_to_the_starting_disk_number: u64,
+    pub number_of_this_disk: u32,
+    pub number_of_the_disk_with_the_start_of_the_central_directory: u32,
+    pub total_number_of_entries_in_the_central_directory_on_this_disk: u64,
+    pub total_number_of_entries_in_the_central_directory: u64,
+    pub size_of_the_central_directory: u64,
+    pub offset_of_start_of_central_directory_with_respect_to_the_starting_disk_number: u64,
 
-    zip64_extensible_data_sector: Vec<Zip64ExtensibleDataSector>,
+    pub zip64_extensible_data_sector: Vec<Zip64ExtensibleDataSector>,
 }
 
-struct Zip64ExtensibleDataSector {
+pub struct Zip64ExtensibleDataSector {
     // Valid header IDs are specified in APPENDIX C of the APPNOTE
-    header_id: u16,
-    data_size: u32,
-    data: Vec<u8>,
+    pub header_id: u16,
+    pub data_size: u32,
+    pub data: Vec<u8>,
 }
 
 // * The aggregate of all CentralDirectoryHeaders may be compressed
