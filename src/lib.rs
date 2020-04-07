@@ -146,6 +146,7 @@ pub struct CentralDirectoryHeader {
     pub last_mod_file_time: u16,
     pub last_mod_file_date: u16,
 
+    // Defined in 4.4.7, can partially reuse crc32fast
     pub crc32: u32,
 
     pub compressed_size: u32,
@@ -162,8 +163,11 @@ pub struct CentralDirectoryHeader {
 
     // Defined in 4.4.15
     pub external_file_attributes: u32,
+
+    // Defined in 4.4.16
     pub relative_offset_of_local_header: u32,
 
+    // The length of these three fields should not exceed 65,535
     pub file_name: Vec<u8>,
     pub extra_field: Vec<u8>,
     pub file_comment: Vec<u8>,
@@ -178,6 +182,7 @@ pub struct CentralDirectoryHeader {
 // I couldn't tell, but when reading this it seems like it may be immediately preceded by the
 // signature value mentioned.
 pub struct DataDescriptor {
+    // Defined in 4.4.7, can partially reuse crc32fast
     pub crc32: u32,
     pub compressed_size: u32,
     pub uncompressed_size: u32,
@@ -200,6 +205,12 @@ pub struct EndOfCentralDirectoryRecord {
     pub zip_file_comment: Vec<u8>,
 }
 
+// Defined in section 4.5
+pub struct ExtensibleDataFields {
+    pub header: u16,
+    pub data_size: u16,
+}
+
 pub struct FileData;
 
 pub struct LocalFileHeader {
@@ -216,6 +227,7 @@ pub struct LocalFileHeader {
     pub mod_file_time: u16,
     pub mod_file_date: u16,
 
+    // Defined in 4.4.7, can partially reuse crc32fast
     pub crc32: u32,
 
     pub compressed_size: u32,
@@ -225,7 +237,7 @@ pub struct LocalFileHeader {
     pub extra_field_length: u16,
 
     pub file_name: Vec<u8>,
-    pub extra_field: Vec<u8>,
+    pub extra_field: Vec<ExtensibleDataFields>,
 }
 
 pub struct Version {
