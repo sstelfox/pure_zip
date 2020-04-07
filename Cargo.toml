@@ -6,10 +6,10 @@ license = "MIT"
 repository = "https://github.com/sstelfox/pure_zip.git"
 keywords = ["archive", "compress", "decompress", "zip"]
 description = """
-A library for reading Zip archives. This library specializes in being highly
-compatible with other Zip archive producers and dealing both with files that
-fully conform to the produced specifications as well as those that... take
-shortcuts...
+A rust library for handling unruly Zip archives. This library specializes in
+being highly compatible with other Zip archive producers and dealing both with
+files that fully conform to the produced specifications as well as those
+that... take shortcuts...
 """
 edition = "2018"
 
