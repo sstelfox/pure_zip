@@ -30,8 +30,31 @@ pub struct ArchiveExtraDataRecord {
 }
 
 pub enum Features {
+    // Referred to as the "Default" value, this is the minimum feature set required to be
+    // implemented
+    Minimum,
+    VolumeLabel,
+    Directories,
+    DeflateCompression,
+    PKWareEncryption,
+    Deflate64Compression,
+    PKWareDCLImplode,
+    PatchDataSet,
+    ZIP64Format,
+    BZip2Compression,
+    DESEncryption,
+    ThreeDESEncryption,
+    RC2Encryption,
+    RC4Encryption,
     AESEncryption,
     CorrectedRC2Encryption,
+    CorrectedRC264Encryption,
+    NonOAEPKeyWrapping,
+    CentralDirectoryEncryption,
+    LZMACompression,
+    PPMdCompression,
+    BlowfishEncryption,
+    TwofishEncryption,
 }
 
 impl Features {
@@ -39,8 +62,29 @@ impl Features {
         use self::Features::*;
 
         match *self {
+            Minimum => 10,
+            VolumeLabel => 11,
+            Directories => 20,
+            DeflateCompression => 20,
+            PKWareEncryption => 20,
+            Deflate64Compression =>21,
+            PKWareDCLImplode => 25,
+            PatchDataSet => 27,
+            ZIP64Format => 45,
+            BZip2Compression => 46,
+            DESEncryption => 50,
+            ThreeDESEncryption => 50,
+            RC2Encryption => 50,
+            RC4Encryption => 50,
             AESEncryption => 51,
             CorrectedRC2Encryption => 51,
+            CorrectedRC264Encryption => 52,
+            NonOAEPKeyWrapping => 61,
+            CentralDirectoryEncryption => 62,
+            LZMACompression => 63,
+            PPMdCompression => 63,
+            BlowfishEncryption => 63,
+            TwofishEncryption => 63,
         }
     }
 }
