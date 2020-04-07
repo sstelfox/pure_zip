@@ -58,7 +58,7 @@ pub enum Features {
 }
 
 impl Features {
-    pub fn minimum_supported_version(&self) -> u16 {
+    pub fn minimum_version(&self) -> u16 {
         use self::Features::*;
 
         match *self {
@@ -133,12 +133,16 @@ pub struct CentralDirectoryHeader {
     // Always set to 0x02014b50
     pub central_file_header_signature: u32,
 
-    pub version_made_by: VersionMadeBy,
-    pub version_needed_to_extract: u16,
+    pub version_made_by: Version,
+    pub version_needed_to_extract: Version,
 
+    // Defined in 4.4.4
     pub general_purpose_bit_flag: u16,
+
+    // Defined in 4.4.5
     pub compression_method: u16,
 
+    // Defined in 4.4.6 "MS-DOS" time format
     pub last_mod_file_time: u16,
     pub last_mod_file_date: u16,
 
@@ -153,7 +157,10 @@ pub struct CentralDirectoryHeader {
 
     pub disk_number_start: u16,
 
+    // Defined in 4.4.14
     pub internal_file_attributes: u16,
+
+    // Defined in 4.4.15
     pub external_file_attributes: u32,
     pub relative_offset_of_local_header: u32,
 
@@ -197,13 +204,23 @@ pub struct FileData;
 
 pub struct LocalFileHeader {
     pub extraction_version: u16,
+
+    // Defined in 4.4.4
     pub general_purpose_bit_flag: u16,
+
+    // Defined in 4.4.5
     pub compression_method: u16,
+
+    // Defined in 4.4.6 "MS-DOS" time format, if general purpose bit flag 13 is set this value
+    // should be 0
     pub mod_file_time: u16,
     pub mod_file_date: u16,
+
     pub crc32: u32,
+
     pub compressed_size: u32,
     pub uncompressed_size: u32,
+
     pub file_name_length: u16,
     pub extra_field_length: u16,
 
@@ -211,7 +228,7 @@ pub struct LocalFileHeader {
     pub extra_field: Vec<u8>,
 }
 
-pub struct VersionMadeBy {
+pub struct Version {
     pub attribute_compatibility: AttributeCompatibility,
     pub zip_specification_version: ZipSpecificationVersion,
 }
@@ -238,8 +255,8 @@ pub struct Zip64EndOfCentralDirectoryRecord {
     // Should be the size of this struct without the signature or this field
     pub size_of_end_of_central_directory_record: u64,
 
-    pub version_made_by: VersionMadeBy,
-    pub version_needed_to_extract: u16,
+    pub version_made_by: Version,
+    pub version_needed_to_extract: Version,
 
     pub number_of_this_disk: u32,
     pub number_of_the_disk_with_the_start_of_the_central_directory: u32,
